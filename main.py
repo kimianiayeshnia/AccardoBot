@@ -87,4 +87,9 @@ def handle_order_text(message):
                      reply_markup=main_keyboard())
 
 # ======= شروع ربات =======
-bot.polling()
+while True:
+    try:
+        bot.polling(none_stop=True)
+    except Exception as e:
+        print("Error:", e)
+

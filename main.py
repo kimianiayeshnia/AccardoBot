@@ -69,11 +69,19 @@ def start_msg(message):
 🪽تحویل به موقع و با کیفیت بالا
 🪽مشاوره رایگان برای انتخاب بهترین طرح
 
-✨ همین الن سفارشت رو ثبت کن و اولین قدم برای موفقیت برندت رو بردار!
+✨ همین الان سفارشت رو ثبت کن و اولین قدم برای موفقیت برندت رو بردار!
 
 🐚 انجام تمام خدمات گرافیکی 🎳""",
                      reply_markup=main_keyboard())
 
+# ======= دریافت توضیحات سفارش =======
+@bot.message_handler(func=lambda m: m.chat.id in user_orders)
+def handle_order_text(message):
+    service_name = user_orders.pop(message.chat.id)
+    bot.send_message(message.chat.id,
+                     f" سفارش شما با موفقیت ثبت و دریافت شد.\n درصورت تایید برای شما پیامک ارسال خواهد شد.",
+                     reply_markup=main_keyboard())
+    
 # ======= هندل پیام های اصلی (ReplyKeyboard) =======
 @bot.message_handler(func=lambda m: True)
 def handle_main(message):
@@ -245,13 +253,7 @@ def handle_services(call):
                               text="یکی از گزینه‌های زیر را انتخاب کنید:", reply_markup=main_keyboard())
 
 
-# ======= دریافت توضیحات سفارش =======
-@bot.message_handler(func=lambda m: m.chat.id in user_orders)
-def handle_order_text(message):
-    service_name = user_orders.pop(message.chat.id)
-    bot.send_message(message.chat.id,
-                     f" سفارش شما با موفقیت ثبت و دریافت شد.\n درصورت تایید برای شما پیامک ارسال خواهد شد.",
-                     reply_markup=main_keyboard())
+
 
 # ======= شروع ربات =======
 while True:

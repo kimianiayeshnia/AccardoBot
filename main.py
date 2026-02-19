@@ -1,5 +1,12 @@
 import telebot
+from telebot import types
 
+# ساخت کیبورد
+keyboard = types.ReplyKeyboardMarkup(row_width=2, resize_keyboard=True)
+btn1 = types.KeyboardButton('استارت')
+btn2 = types.KeyboardButton('سفارش')
+btn3 = types.KeyboardButton('پورتفولیو')
+keyboard.add(btn1, btn2, btn3)
 # ====== اینجا توکن رباتتو بذار ======
 TOKEN = "8446961711:AAGIJ1O4yc9G2UMzK_oNe9dceXPbDMPvsyU"
 bot = telebot.TeleBot(TOKEN)

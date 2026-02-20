@@ -132,14 +132,21 @@ def support_command(message):
 @bot.message_handler(func=lambda m: m.chat.id in user_orders, content_types=['text','photo','document','voice'])
 def handle_order_text(message):
     chat_id = message.chat.id
-    service_name = user_orders.pop(chat_id)  # فقط یک بار حذف کنیم
+
+    # مطمئن میشیم سرویس انتخابی هنوز موجوده
+    service_name = user_orders.get(chat_id)
+    if not service_name:
+        return  # اگر سرویس نبود، چیزی انجام نده
+
+    # حذف بعد از گرفتن سرویس
+    user_orders.pop(chat_id)
 
     # پیام تایید به کاربر
     bot.send_message(chat_id,
                      "✅ سفارش شما ثبت شد و به زودی بررسی می‌شود.",
                      reply_markup=main_keyboard())
 
-    # آماده کردن متن ادمین
+    # متن پایه برای ادمین
     admin_text = (
         f"📥 سفارش جدید دریافت شد!\n\n"
         f"👤 آیدی کاربر: @{message.from_user.username}\n"
@@ -147,7 +154,7 @@ def handle_order_text(message):
         f"🛠 سرویس انتخابی: {service_name}\n\n"
     )
 
-    # ارسال بر اساس نوع پیام
+    # ارسال به ادمین بر اساس نوع پیام
     if message.content_type == 'text':
         bot.send_message(ADMIN_ID, admin_text + f"📝 متن سفارش:\n{message.text}")
 

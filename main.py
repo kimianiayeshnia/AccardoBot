@@ -329,7 +329,7 @@ def handle_services(call):
     elif call.data.startswith("order_"):
         service_name = call.data.split("_")[1]
         user_orders[chat_id] = service_name
-        bot.send_message(chat_id, f"کاربر محترم، لطفاً توضیحات سفارش خودت رو بنویسید و در پایان پیام حتما شماره تماس خودتان را قرار دهید.:")
+        bot.send_message(chat_id, f"کاربر محترم، لطفاً توضیحات سفارش خودت رو بنویسید و در پایان پیام حتما شماره تماس خودتان را قرار دهید. امکان ارسال تصویر ویس و فایل هست اما هنگام ارسال حتما در کپشن فایل، توضیحات سفارش را درج کنید.")
 
     # بازگشت به صفحه خدمات
     elif call.data == "back_to_services":

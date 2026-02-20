@@ -2,6 +2,7 @@ import telebot
 from telebot import types
 
 TOKEN = "8446961711:AAGIJ1O4yc9G2UMzK_oNe9dceXPbDMPvsyU"
+ADMIN_ID = 6106332911
 bot = telebot.TeleBot(TOKEN)
 
 # ======= کیبورد اصلی زیر باکس پیام =======
@@ -130,10 +131,55 @@ def support_command(message):
 # ======= دریافت توضیحات سفارش =======
 @bot.message_handler(func=lambda m: m.chat.id in user_orders)
 def handle_order_text(message):
-    service_name = user_orders.pop(message.chat.id)
-    bot.send_message(message.chat.id,
-                     f" سفارش شما با موفقیت ثبت و دریافت شد.\n درصورت تایید برای شما پیامک ارسال خواهد شد.",
+    chat_id = message.chat.id
+    service_name = user_orders.pop(chat_id)  # فقط یک بار حذف کنیم
+
+    # پیام تایید به کاربر
+    bot.send_message(chat_id,
+                     "✅ سفارش شما ثبت شد و به زودی بررسی می‌شود.",
                      reply_markup=main_keyboard())
+
+    # ارسال پیام به ادمین بسته به نوع محتوا
+    if message.text:
+        bot.send_message(
+            ADMIN_ID,
+            f"📥 سفارش جدید دریافت شد!\n\n"
+            f"👤 آیدی کاربر: @{message.from_user.username}\n"
+            f"🆔 آی‌دی عددی: {chat_id}\n"
+            f"🛠 سرویس انتخابی: {service_name}\n\n"
+            f"📝 متن سفارش:\n{message.text}"
+        )
+
+    elif message.photo:
+        bot.send_message(
+            ADMIN_ID,
+            f"📥 سفارش جدید (عکس) دریافت شد!\n\n"
+            f"👤 آیدی کاربر: @{message.from_user.username}\n"
+            f"🆔 آی‌دی عددی: {chat_id}\n"
+            f"🛠 سرویس انتخابی: {service_name}"
+        )
+        # ارسال تصویر با بالاترین کیفیت
+        bot.send_photo(ADMIN_ID, message.photo[-1].file_id, caption=message.caption or "")
+
+    elif message.document:
+        bot.send_message(
+            ADMIN_ID,
+            f"📥 سفارش جدید (فایل) دریافت شد!\n\n"
+            f"👤 آیدی کاربر: @{message.from_user.username}\n"
+            f"🆔 آی‌دی عددی: {chat_id}\n"
+            f"🛠 سرویس انتخابی: {service_name}"
+        )
+        bot.send_document(ADMIN_ID, message.document.file_id, caption=message.caption or "")
+
+    elif message.voice:
+        bot.send_message(
+            ADMIN_ID,
+            f"📥 سفارش جدید (ویس) دریافت شد!\n\n"
+            f"👤 آیدی کاربر: @{message.from_user.username}\n"
+            f"🆔 آی‌دی عددی: {chat_id}\n"
+            f"🛠 سرویس انتخابی: {service_name}"
+        )
+        bot.send_voice(ADMIN_ID, message.voice.file_id, caption=message.caption or "")
     
 # ======= هندل پیام های اصلی (ReplyKeyboard) =======
 @bot.message_handler(func=lambda m: True)

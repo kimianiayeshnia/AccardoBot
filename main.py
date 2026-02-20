@@ -129,7 +129,7 @@ def support_command(message):
                      reply_markup=main_keyboard())
     
 # ======= دریافت توضیحات سفارش =======
-@bot.message_handler(func=lambda m: m.chat.id in user_orders)
+@bot.message_handler(func=lambda m: m.chat.id in user_orders, content_types=['text','photo','document','voice'])
 def handle_order_text(message):
     chat_id = message.chat.id
     service_name = user_orders.pop(chat_id)  # فقط یک بار حذف کنیم
@@ -139,46 +139,28 @@ def handle_order_text(message):
                      "✅ سفارش شما ثبت شد و به زودی بررسی می‌شود.",
                      reply_markup=main_keyboard())
 
-    # ارسال پیام به ادمین بسته به نوع محتوا
-    if message.text:
-        bot.send_message(
-            ADMIN_ID,
-            f"📥 سفارش جدید دریافت شد!\n\n"
-            f"👤 آیدی کاربر: @{message.from_user.username}\n"
-            f"🆔 آی‌دی عددی: {chat_id}\n"
-            f"🛠 سرویس انتخابی: {service_name}\n\n"
-            f"📝 متن سفارش:\n{message.text}"
-        )
+    # آماده کردن متن ادمین
+    admin_text = (
+        f"📥 سفارش جدید دریافت شد!\n\n"
+        f"👤 آیدی کاربر: @{message.from_user.username}\n"
+        f"🆔 آی‌دی عددی: {chat_id}\n"
+        f"🛠 سرویس انتخابی: {service_name}\n\n"
+    )
 
-    elif message.photo:
-        bot.send_message(
-            ADMIN_ID,
-            f"📥 سفارش جدید (عکس) دریافت شد!\n\n"
-            f"👤 آیدی کاربر: @{message.from_user.username}\n"
-            f"🆔 آی‌دی عددی: {chat_id}\n"
-            f"🛠 سرویس انتخابی: {service_name}"
-        )
-        # ارسال تصویر با بالاترین کیفیت
+    # ارسال بر اساس نوع پیام
+    if message.content_type == 'text':
+        bot.send_message(ADMIN_ID, admin_text + f"📝 متن سفارش:\n{message.text}")
+
+    elif message.content_type == 'photo':
+        bot.send_message(ADMIN_ID, admin_text + "📷 عکس ارسال شد")
         bot.send_photo(ADMIN_ID, message.photo[-1].file_id, caption=message.caption or "")
 
-    elif message.document:
-        bot.send_message(
-            ADMIN_ID,
-            f"📥 سفارش جدید (فایل) دریافت شد!\n\n"
-            f"👤 آیدی کاربر: @{message.from_user.username}\n"
-            f"🆔 آی‌دی عددی: {chat_id}\n"
-            f"🛠 سرویس انتخابی: {service_name}"
-        )
+    elif message.content_type == 'document':
+        bot.send_message(ADMIN_ID, admin_text + f"📄 فایل ارسال شد: {message.document.file_name}")
         bot.send_document(ADMIN_ID, message.document.file_id, caption=message.caption or "")
 
-    elif message.voice:
-        bot.send_message(
-            ADMIN_ID,
-            f"📥 سفارش جدید (ویس) دریافت شد!\n\n"
-            f"👤 آیدی کاربر: @{message.from_user.username}\n"
-            f"🆔 آی‌دی عددی: {chat_id}\n"
-            f"🛠 سرویس انتخابی: {service_name}"
-        )
+    elif message.content_type == 'voice':
+        bot.send_message(ADMIN_ID, admin_text + "🎙 ویس ارسال شد")
         bot.send_voice(ADMIN_ID, message.voice.file_id, caption=message.caption or "")
     
 # ======= هندل پیام های اصلی (ReplyKeyboard) =======
